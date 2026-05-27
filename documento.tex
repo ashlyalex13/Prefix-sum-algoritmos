@@ -1,0 +1,112 @@
+\documentclass[twocolumn]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish, es-tabla]{babel} % es-tabla cambia "Cuadro" por "Tabla"
+\usepackage{amsmath, amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{hyperref}
+
+\geometry{margin=1.5cm, top=1.8cm, bottom=1.8cm}
+\hypersetup{colorlinks=true, urlcolor=blue}
+
+\title{\textbf{Prefix Sum: De $O(n)$ a $O(1)$}\\
+\large Precomputación como estrategia de escalabilidad masiva}
+\author{Ashly Hernandez - 2363157-2724\\
+\small Análisis y Diseño de Algoritmos}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+El problema de la \textit{suma de rango} consiste en calcular la suma de los
+elementos de un arreglo entre dos índices $[l, r]$.
+La solución ingenua recorre todos los elementos del intervalo, logrando
+complejidad $O(n)$ por consulta.
+Mediante la técnica de \textbf{Prefix Sum}, precomputamos en $O(n)$ un arreglo
+auxiliar que permite responder cualquier consulta en tiempo constante $O(1)$.
+Las pruebas empíricas muestran que la versión optimizada es hasta
+\textbf{30.903 veces más rápida} para $n = 10^6$.
+\end{abstract}
+
+\section{Introducción}
+Sea $A = [a_0, a_1, \ldots, a_{n-1}]$ un arreglo de $n$ enteros.
+La consulta de suma de rango se define como:
+\[
+\text{query}(l, r) = \sum_{i=l}^{r} a_i, \quad 0 \le l \le r < n
+\]
+Cuando el número de consultas $q \sim n$, la solución ingenua cuesta
+$O(n \cdot q)$, lo que para $n = q = 10^6$ equivale a $10^{12}$ operaciones,
+completamente inviable en tiempo real.
+
+\section{Análisis de Complejidad}
+
+\subsection{Implementación Ingenua --- $O(n)$ por consulta}
+El enfoque directo itera sobre todos los índices del intervalo $[l, r]$.
+Para $q$ consultas la complejidad total es $O(n \cdot q)$.
+
+\subsection{Prefix Sum --- $O(1)$ por consulta}
+\textbf{Definición.} Sea $P$ el arreglo de sumas prefijas:
+\[
+P[0] = 0, \qquad P[i] = \sum_{k=0}^{i-1} a_k, \quad \forall i \in [1, n]
+\]
+
+\textbf{Teorema.} Para todo $0 \le l \le r < n$:
+\[
+\text{query}(l, r) = P[r+1] - P[l]
+\]
+
+\textit{Demostración.}
+\begin{align*}
+P[r+1] - P[l]
+&= \sum_{k=0}^{r} a_k - \sum_{k=0}^{l-1} a_k \\
+&= \sum_{k=l}^{r} a_k \quad \blacksquare
+\end{align*}
+Costo total: $O(n)$ de precomputación y $O(1)$ por consulta, resultando en un costo global de $O(n + q)$.
+
+\section{Resultados}
+Las pruebas empíricas con 5.000 consultas por prueba muestran:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{rrrr}
+\toprule
+$n$ & Ingenua (ms) & Prefix Sum (ms) & Speedup \\
+\midrule
+1.000      &     19,8  &   0,28 &      70$\times$ \\
+10.000     &    196,6  &   0,45 &     440$\times$ \\
+100.000    &  2.014,3  &   0,43 &   4.733$\times$ \\
+500.000    & 10.265,4  &   0,51 &  19.979$\times$ \\
+1.000.000  & 20.463,1  &   0,66 &  30.903$\times$ \\
+\bottomrule
+\end{tabular}
+\caption{Tiempo total de 5.000 consultas por tamaño}
+\end{table}
+
+\section{Aplicaciones Reales}
+\textbf{Bases de datos.} PostgreSQL usa sumas prefijas en funciones de
+ventana (\texttt{SUM OVER}) para calcular rangos en $O(1)$.
+
+\textbf{Visión por Computador.} La Integral Image de Viola-Jones (2001)
+aplica prefix sum 2D para detectar rostros en tiempo real.
+
+\textbf{Business Intelligence.} Google Analytics y Apache Druid calculan
+métricas acumuladas sobre ventanas de tiempo en $O(1)$.
+
+\begin{thebibliography}{9}
+\bibitem{clrs}
+T.~Cormen et al., \textit{Introduction to Algorithms}, 4th ed. MIT Press, 2022.
+\bibitem{violajones}
+P.~Viola, M.~Jones, ``Rapid object detection using a boosted cascade,''
+\textit{CVPR}, 2001.
+\end{thebibliography}
+
+\vspace{0.5em}
+\noindent\textbf{Repositorio:} \\
+\small\url{https://github.com/ashlyalex13/Prefix-sum-algoritmos}
+
+\end{document}
