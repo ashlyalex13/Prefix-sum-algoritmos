@@ -38,3 +38,21 @@ def suma_rango_optimizada(prefix, l, r):
     Fórmula: prefix[r+1] - prefix[l]
     """
     return prefix[r + 1] - prefix[l]
+
+# VERIFICACIÓN DE CORRECTITUD
+
+def verificar_correctitud():
+    arr = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3]
+    prefix = construir_prefix_sum(arr)
+
+    casos = [(0, 4), (2, 7), (0, 9), (3, 3), (1, 8)]
+    print(f"Arreglo: {arr}\n")
+    for l, r in casos:
+        r1 = suma_rango_ingenua(arr, l, r)
+        r2 = suma_rango_optimizada(prefix, l, r)
+        ok = "✓" if r1 == r2 else "✗"
+        print(f"arr[{l}..{r}] -> Ingenua: {r1}  Optimizada: {r2}  {ok}")
+
+
+if __name__ == "__main__":
+    verificar_correctitud()
